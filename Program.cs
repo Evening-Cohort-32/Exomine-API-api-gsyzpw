@@ -12,23 +12,49 @@ List<Colony> colonies = new List<Colony>
     {
         Id = 2,
         Name = "Mars"
-    }
+    },
+        new Colony
+    {
+        Id = 3,
+        Name = "Europa"
+    },
 };
 List<Governor> governors = new List<Governor>
 {
     new Governor
     {
         Id = 1,
-        Name = "",
+        Name = "Patricia Purdy",
         ColonyId = 1,
         Status = true
     },
     new Governor
     {
         Id = 2,
-        Name = "",
+        Name = "Katrina Bahringer",
         ColonyId = 2,
-        Status = false
+        Status = true
+    },
+        new Governor
+    {
+        Id = 3,
+        Name = "Lola Wolf",
+        ColonyId = 3,
+        Status = true
+    },
+        new Governor
+    {
+        Id = 4,
+        Name = "Damon Hartmann",
+        ColonyId = 3,
+        Status = true
+    },
+        new Governor
+    {
+        Id = 5,
+        Name = "Eleanor Voss",
+        ColonyId = 2,
+        Status = true
     }
 };
 List<MiningFacility> miningFacilities = new List<MiningFacility>
@@ -36,20 +62,26 @@ List<MiningFacility> miningFacilities = new List<MiningFacility>
     new MiningFacility
     {
         Id = 1,
-        Name = "",
+        Name = "Ganymede",
         Status = true
     },
     new MiningFacility
     {
         Id = 2,
-        Name = "",
+        Name = "Io",
         Status = false
     },
         new MiningFacility
     {
         Id = 3,
-        Name = "",
+        Name = "Titan",
         Status = true
+    },
+        new MiningFacility
+    {
+        Id = 4,
+        Name = "Luna",
+        Status = false
     }
 };
 List<Mineral> minerals = new List<Mineral>
@@ -63,6 +95,21 @@ List<Mineral> minerals = new List<Mineral>
     {
         Id = 2,
         Name = "Magnesium",
+    },
+    new Mineral
+    {
+        Id = 3,
+        Name = "Molybdenum",
+    },
+    new Mineral
+    {
+        Id = 4,
+        Name = "Salt",
+    },
+    new Mineral
+    {
+        Id = 5,
+        Name = "Nickel",
     }
 };
 
