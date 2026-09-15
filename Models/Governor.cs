@@ -5,7 +5,7 @@ public class Governor
     public int Id { get; set; }
     public string Name { get; set; }
     public int ColonyId { get; set; }
-    public string Status { get; set; }
+    public bool Status { get; set; }
 
     public Colony Colony { get; set; }
     public List<GovernorHistory> GovernorHistories { get; set; }
