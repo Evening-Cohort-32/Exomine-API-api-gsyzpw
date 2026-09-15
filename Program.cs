@@ -47,7 +47,7 @@ List<Governor> governors = new List<Governor>
         Id = 4,
         Name = "Damon Hartmann",
         ColonyId = 3,
-        Status = true
+        Status = false
     },
         new Governor
     {
@@ -112,8 +112,77 @@ List<Mineral> minerals = new List<Mineral>
         Name = "Nickel",
     }
 };
-
-
+List<ColonyInventory> colonyInventory = new List<ColonyInventory>
+{
+    new ColonyInventory
+    {
+        Id = 1,
+        ColonyId = 1,
+        MineralId = 3,
+        Quantity = 5
+    }
+};
+List<FacilityInventory> facilityInventory = new List<FacilityInventory>
+{
+    new FacilityInventory
+    {
+        Id = 1,
+        MiningFacilityId = 2,
+        MineralId = 3,
+        SaleQuantity = 8
+    },
+    new FacilityInventory
+    {
+        Id = 1,
+        MiningFacilityId = 2,
+        MineralId = 2,
+        SaleQuantity = 0
+    }
+};
+List<GovernorHistory> governorHistory = new List<GovernorHistory>
+{
+     new GovernorHistory
+    {
+        Id = 1,
+        GovernorId = 2,
+        ColonyId = 2,
+        PreviousStatus = true,
+        NewStatus = true,
+        Timestamp = new DateTime(2026, 4, 2, 8, 15, 0)
+    },
+     new GovernorHistory
+    {
+        Id = 2,
+        GovernorId = 1,
+        ColonyId = 1,
+        PreviousStatus = false,
+        NewStatus = true,
+        Timestamp = new DateTime(2026, 4, 2, 8, 15, 0)
+    }
+};
+List<Transaction> transactions = new List<Transaction>
+{
+    new Transaction
+    {
+        Id = 1,
+        GovernorId = 1,
+        ColonyId = 1,
+        MiningFacilityId = 1,
+        MineralId = 2,
+        Quantity = 1,
+        TimeStamp = new DateTime(2026, 8, 10, 14, 20, 0)
+    },
+        new Transaction
+    {
+        Id = 2,
+        GovernorId = 2,
+        ColonyId = 2,
+        MiningFacilityId = 1,
+        MineralId = 1,
+        Quantity = 2,
+        TimeStamp = new DateTime(2026, 8, 12, 9, 45, 0)
+    }
+};
 
 
 
