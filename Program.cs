@@ -118,13 +118,69 @@ List<ColonyInventory> colonyInventory = new List<ColonyInventory>
     {
         Id = 1,
         ColonyId = 1,
-        MineralId = 3,
+        MineralId = 1,
         Quantity = 5
+    },
+        new ColonyInventory
+    {
+        Id = 2,
+        ColonyId = 2,
+        MineralId = 1,
+        Quantity = 3
+    },
+        new ColonyInventory
+    {
+        Id = 3,
+        ColonyId = 3,
+        MineralId = 1,
+        Quantity = 4
+    },
+    new ColonyInventory
+    {
+        Id = 4,
+        ColonyId = 1,
+        MineralId = 2,
+        Quantity = 6
+    },
+        new ColonyInventory
+    {
+        Id = 5,
+        ColonyId = 2,
+        MineralId = 2,
+        Quantity = 3
+    },
+        new ColonyInventory
+    {
+        Id = 6,
+        ColonyId = 3,
+        MineralId = 3,
+        Quantity = 8
+    },
+    new ColonyInventory
+    {
+        Id = 7,
+        ColonyId = 1,
+        MineralId = 4,
+        Quantity = 5
+    },
+        new ColonyInventory
+    {
+        Id = 8,
+        ColonyId = 2,
+        MineralId = 5,
+        Quantity = 6
+    },
+        new ColonyInventory
+    {
+        Id = 9,
+        ColonyId = 3,
+        MineralId = 4,
+        Quantity = 9
     }
 };
 List<FacilityInventory> facilityInventory = new List<FacilityInventory>
 {
-    new FacilityInventory
+  new FacilityInventory
     {
         Id = 1,
         MiningFacilityId = 2,
@@ -133,10 +189,38 @@ List<FacilityInventory> facilityInventory = new List<FacilityInventory>
     },
     new FacilityInventory
     {
-        Id = 1,
+        Id = 2,
         MiningFacilityId = 2,
         MineralId = 2,
         SaleQuantity = 0
+    },
+    new FacilityInventory
+    {
+        Id = 3,
+        MiningFacilityId = 1,
+        MineralId = 1,
+        SaleQuantity = 10
+    },
+    new FacilityInventory
+    {
+        Id = 4,
+        MiningFacilityId = 1,
+        MineralId = 2,
+        SaleQuantity = 5
+    },
+    new FacilityInventory
+    {
+        Id = 5,
+        MiningFacilityId = 3,
+        MineralId = 4,
+        SaleQuantity = 7
+    },
+    new FacilityInventory
+    {
+        Id = 6,
+        MiningFacilityId = 3,
+        MineralId = 5,
+        SaleQuantity = 3
     }
 };
 List<GovernorHistory> governorHistory = new List<GovernorHistory>
@@ -144,11 +228,11 @@ List<GovernorHistory> governorHistory = new List<GovernorHistory>
      new GovernorHistory
     {
         Id = 1,
-        GovernorId = 2,
-        ColonyId = 2,
+        GovernorId = 4,
+        ColonyId = 3,
         PreviousStatus = true,
-        NewStatus = true,
-        Timestamp = new DateTime(2026, 4, 2, 8, 15, 0)
+        NewStatus = false,
+        TimeStamp = new DateTime(2026, 4, 2, 8, 15, 0)
     },
      new GovernorHistory
     {
@@ -157,7 +241,7 @@ List<GovernorHistory> governorHistory = new List<GovernorHistory>
         ColonyId = 1,
         PreviousStatus = false,
         NewStatus = true,
-        Timestamp = new DateTime(2026, 4, 2, 8, 15, 0)
+        TimeStamp = new DateTime(2026, 4, 2, 8, 15, 0)
     }
 };
 List<Transaction> transactions = new List<Transaction>
@@ -186,6 +270,7 @@ List<Transaction> transactions = new List<Transaction>
 
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -201,6 +286,58 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+
+
+//Get all Governors
+
+app.MapGet("/api/governors", () =>
+{
+    return Results.Ok(governors.Select(g => new GovernorDTO
+    {
+        Id = g.Id,
+        Name = g.Name,
+        ColonyId = g.ColonyId,
+        Status = g.Status
+    }).ToList()
+    );
+});
+
+//Get Governor by Id
+
+app.MapGet("/api/governors/{id}", (int id) =>
+{
+    Governor? governor = governors.FirstOrDefault(g => g.Id == id);
+
+    if (governor == null)
+    {
+        return Results.NotFound();
+    }
+    GovernorDTO governorDTO = new GovernorDTO
+    {
+        Id = governor.Id,
+        Name = governor.Name,
+        ColonyId = governor.ColonyId,
+        Status = governor.Status
+    };
+    return Results.Ok(governorDTO);
+});
+
+//Update Governor (also creates GovernorHistory)
+
+//Delete Governor
+app.MapDelete("/api/governors/{id}", (int id) =>
+{
+    Governor? governor = governors.FirstOrDefault(g => g.Id == id);
+
+    if (governor == null)
+    {
+        return Results.NotFound();
+    }
+    governors.Remove(governor);
+    return Results.NoContent();
+});
+
 
 var summaries = new[]
 {
