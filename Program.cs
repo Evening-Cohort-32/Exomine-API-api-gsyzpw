@@ -1,3 +1,75 @@
+using ExomineAPI.Models;
+using ExomineAPI.Models.DTOs;
+
+List<Colony> colonies = new List<Colony>
+{
+    new Colony
+    {
+        Id = 1,
+        Name = "Earth"
+    },
+    new Colony
+    {
+        Id = 2,
+        Name = "Mars"
+    }
+};
+List<Governor> governors = new List<Governor>
+{
+    new Governor
+    {
+        Id = 1,
+        Name = "",
+        ColonyId = 1,
+        Status = true
+    },
+    new Governor
+    {
+        Id = 2,
+        Name = "",
+        ColonyId = 2,
+        Status = false
+    }
+};
+List<MiningFacility> miningFacilities = new List<MiningFacility>
+{
+    new MiningFacility
+    {
+        Id = 1,
+        Name = "",
+        Status = true
+    },
+    new MiningFacility
+    {
+        Id = 2,
+        Name = "",
+        Status = false
+    },
+        new MiningFacility
+    {
+        Id = 3,
+        Name = "",
+        Status = true
+    }
+};
+List<Mineral> minerals = new List<Mineral>
+{
+    new Mineral
+    {
+        Id = 1,
+        Name = "Iron"
+    },
+    new Mineral
+    {
+        Id = 2,
+        Name = "Magnesium",
+    }
+};
+
+
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,7 +93,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
