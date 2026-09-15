@@ -8,5 +8,6 @@ public class MiningFacilityDTO
     public string Name { get; set; }
     public bool Active { get; set; }
 
-    public List<FacilityInventoryDTO> SaleMinerals { get; set; }
+    public List<FacilityInventoryDTO> Inventory { get; set; }
+    public List<TransactionDTO> Transactions { get; set; }
 }
