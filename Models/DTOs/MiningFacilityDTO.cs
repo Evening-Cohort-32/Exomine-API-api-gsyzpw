@@ -1,3 +1,5 @@
+namespace ExomineAPI.Models.DTOs;
+
 public class MiningFacilityDTO
 {
     public int Id { get; set; }

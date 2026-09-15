@@ -1,3 +1,5 @@
+namespace ExomineAPI.Models;
+
 public class Mineral
 {
     public int Id { get; set; }

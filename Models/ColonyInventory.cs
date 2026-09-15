@@ -1,3 +1,5 @@
+namespace ExomineAPI.Models;
+
 public class ColonyInventory
 {
     public int Id { get; set; }

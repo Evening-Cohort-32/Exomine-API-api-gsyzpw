@@ -1,3 +1,5 @@
+namespace ExomineAPI.Models.DTOs;
+
 public class MineralDTO
 {
     public int Id { get; set; }

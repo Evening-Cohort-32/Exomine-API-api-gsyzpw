@@ -1,3 +1,5 @@
+namespace ExomineAPI.Models;
+
 public class MiningFacility
 {
     public int Id { get; set; }
