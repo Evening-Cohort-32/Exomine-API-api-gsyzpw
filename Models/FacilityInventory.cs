@@ -7,4 +7,6 @@ public class FacilityInventory
     public int MineralId { get; set; }
     public int SaleQuantity { get; set; }
 
+    public MiningFacility MiningFacility { get; set; }
+    public Mineral Mineral { get; set; }
 }
