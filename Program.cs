@@ -1,3 +1,4 @@
+using System.ComponentModel.Design;
 using ExomineAPI.Models;
 using ExomineAPI.Models.DTOs;
 
@@ -289,41 +290,75 @@ app.UseHttpsRedirection();
 
 
 
-//Get all Governors
-
-app.MapGet("/api/governors", () =>
+//Get all active Governors
+app.MapGet("/api/governors", (bool? status) =>
 {
-    return Results.Ok(governors.Select(g => new GovernorDTO
+    List<Governor> governorsToReturn = governors;
+
+    if (status != null)
+    {
+        governorsToReturn = governorsToReturn.Where(g => g.Status == status).ToList();
+    }
+    return governorsToReturn.Select(g => new GovernorDTO
     {
         Id = g.Id,
         Name = g.Name,
         ColonyId = g.ColonyId,
         Status = g.Status
-    }).ToList()
-    );
+    });
 });
 
 //Get Governor by Id
-
 app.MapGet("/api/governors/{id}", (int id) =>
 {
-    Governor? governor = governors.FirstOrDefault(g => g.Id == id);
+    Governor? governor =
+        governors.FirstOrDefault(g => g.Id == id);
 
     if (governor == null)
     {
         return Results.NotFound();
     }
-    GovernorDTO governorDTO = new GovernorDTO
+    return Results.Ok(new GovernorDTO
     {
         Id = governor.Id,
         Name = governor.Name,
         ColonyId = governor.ColonyId,
         Status = governor.Status
+    });
+});
+
+//Create Governor
+app.MapPost("/governors", (GovernorDTO governorDTO) =>
+{
+    Colony? colony = colonies.FirstOrDefault(c => c.Id == governorDTO.ColonyId);
+
+    if (colony == null)
+    {
+        return Results.BadRequest();
+    }
+
+    Governor newgGovernor = new Governor
+    {
+        Id = governors.Max(g => g.Id) + 1,
+        Name = governorDTO.Name,
+        ColonyId = governorDTO.ColonyId,
+        Status = governorDTO.Status
     };
-    return Results.Ok(governorDTO);
+
+    governors.Add(newgGovernor);
+
+    return Results.Created($"/governors/{newgGovernor.Id}", new GovernorDTO
+    {
+        Id = newgGovernor.Id,
+        Name = newgGovernor.Name,
+        ColonyId = newgGovernor.ColonyId,
+        Status = newgGovernor.Status
+    });
+
 });
 
 //Update Governor (also creates GovernorHistory)
+//app.MapPut("/governors/{id}", )
 
 //Delete Governor
 app.MapDelete("/api/governors/{id}", (int id) =>
