@@ -1,9 +1,13 @@
+namespace ExomineAPI.Models;
+
 public class Governor
 {
     public int Id { get; set; }
     public string Name { get; set; }
     public int ColonyId { get; set; }
-    public bool Acitve { get; set; }
+    public bool Status { get; set; }
 
-    public List<> GovernorHistory { get; set; }
+    public Colony Colony { get; set; }
+    public List<GovernorHistory> GovernorHistories { get; set; }
+    public List<Transaction> Transactions { get; set; }
 }
