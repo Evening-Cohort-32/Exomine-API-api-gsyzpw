@@ -1,3 +1,5 @@
+using ExomineAPI.Models.DTO;
+
 namespace ExomineAPI.Models.DTOs;
 
 public class MiningFacilityDTO
@@ -6,5 +8,5 @@ public class MiningFacilityDTO
     public string Name { get; set; }
     public bool Active { get; set; }
 
-    public List<MineralDTO> SaleMinerals { get; set; }
+    public List<FacilityInventoryDTO> SaleMinerals { get; set; }
 }

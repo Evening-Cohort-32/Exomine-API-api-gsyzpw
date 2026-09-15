@@ -6,5 +6,5 @@ public class MiningFacility
     public string Name { get; set; }
     public bool Active { get; set; }
 
-    public List<Mineral> SaleMinerals { get; set; }
+    public List<FacilityInventory> SaleMinerals { get; set; }
 }
