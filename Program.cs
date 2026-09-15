@@ -327,7 +327,7 @@ app.MapGet("/api/governors/{id}", (int id) =>
 });
 
 //Create Governor
-app.MapPost("/governors", (GovernorDTO governorDTO) =>
+app.MapPost("/api/governors", (GovernorDTO governorDTO) =>
 {
     Colony? colony = colonies.FirstOrDefault(c => c.Id == governorDTO.ColonyId);
 
@@ -371,3 +371,18 @@ app.MapDelete("/api/governors/{id}", (int id) =>
     governors.Remove(governor);
     return Results.NoContent();
 });
+
+
+//Colony CRUD Below
+
+//Get All Colonies
+app.MapGet();
+
+//Get One Colony by Id
+app.MapGet();
+
+//Create Colony
+app.MapPost();
+
+//Delete Colony by Id
+app.MapDelete();
