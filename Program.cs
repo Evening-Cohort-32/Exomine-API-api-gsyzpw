@@ -1,4 +1,6 @@
+using System.ComponentModel.Design;
 using ExomineAPI.Models;
+using ExomineAPI.Models.DTO;
 using ExomineAPI.Models.DTOs;
 
 List<Colony> colonies = new List<Colony>
@@ -372,29 +374,93 @@ app.MapDelete("/api/governors/{id}", (int id) =>
     return Results.NoContent();
 });
 
-
-var summaries = new[]
+//MiningFacility get all
+app.MapGet("/api/miningfacilities", () =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    return miningFacilities.Select(f => new MiningFacilityDTO
+    {
+        Id = f.Id,
+        Name = f.Name,
+        Active = f.Active
+    });
+});
 
-app.MapGet("/weatherforecast", () =>
+//MiningFacility get Id
+app.MapGet("/api/miningfacilities/{id}", (int id) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    MiningFacility facility = miningFacilities.FirstOrDefault(f => f.Id == id);
+
+    if (facility == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(new MiningFacilityDTO
+    {
+        Id = facility.Id,
+        Name = facility.Name,
+        Active = facility.Active
+    });
+});
+
+//MiningFacility create
+app.MapPost("/api/miningfacilities", (MiningFacilityDTO facilityDTO) =>
+{
+    MiningFacility newFacility = new MiningFacility
+    {
+        Id = miningFacilities.Max(f => f.Id) +1,
+        Name = facilityDTO.Name,
+        Active = facilityDTO.Active
+    };
+
+    miningFacilities.Add(newFacility);
+
+    return Results.Created(
+        $"/api/miningfacilities/{newFacility.Id}",
+        new MiningFacilityDTO
+        {
+            Id = newFacility.Id,
+            Name = newFacility.Name,
+            Active = newFacility.Active
+        }
+    );
+});
+
+//MiningFacility update
+app.MapPut("/api/miningfacilities/{id}", (int id, MiningFacilityDTO facilityDTO) =>
+{
+    MiningFacility facilityToUpdate = miningFacilities.FirstOrDefault(f => f.Id == id);
+
+    if (facilityToUpdate == null)
+    {
+        return Results.NotFound();
+    }
+
+    facilityToUpdate.Name = facilityDTO.Name;
+    facilityToUpdate.Active = facilityDTO.Active;
+
+    return Results.Ok(new MiningFacilityDTO
+    {
+        Id = facilityToUpdate.Id,
+        Name = facilityToUpdate.Name,
+        Active = facilityToUpdate.Active
+    });
+});
+
+//MiningFacility delete
+app.MapDelete("/api/miningfacilities/{id}", (int id) =>
+{
+    MiningFacility facilityToDelete = miningFacilities.FirstOrDefault(f => f.Id == id);
+
+    if (facilityToDelete == null)
+    {
+        return Results.NotFound();
+    }
+
+    miningFacilities.Remove(facilityToDelete);
+
+    return Results.NoContent();
+});
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
