@@ -289,8 +289,8 @@ app.UseHttpsRedirection();
 
 
 
-//Get all active Governors
-app.MapGet("/api/governors", (bool? status) =>
+//Get all Governors, optionally filtered by status
+app.MapGet("/governors", (bool? status) =>
 {
     List<Governor> governorsToReturn = governors;
 
@@ -308,7 +308,7 @@ app.MapGet("/api/governors", (bool? status) =>
 });
 
 //Get Governor by Id
-app.MapGet("/api/governors/{id}", (int id) =>
+app.MapGet("/governors/{id}", (int id) =>
 {
     Governor? governor =
         governors.FirstOrDefault(g => g.Id == id);
@@ -357,10 +357,51 @@ app.MapPost("/governors", (GovernorDTO governorDTO) =>
 });
 
 //Update Governor (also creates GovernorHistory)
-//app.MapPut("/governors/{id}", )
+app.MapPut("/governors/{id}", (int id, GovernorDTO updatedGovernor) =>
+{
+    Governor? governor = governors.FirstOrDefault(g => g.Id == id);
+
+    if (governor == null)
+    {
+        return Results.NotFound();
+    }
+
+    Colony? colony = colonies.FirstOrDefault(c => c.Id == updatedGovernor.ColonyId);
+
+    if (colony == null)
+    {
+        return Results.BadRequest();
+    }
+
+    //Save the old status BEFORE changing the governor
+    bool previousStatus = governor.Status;
+
+    //Update the governor
+    governor.Name = updatedGovernor.Name;
+    governor.ColonyId = updatedGovernor.ColonyId;
+    governor.Status = updatedGovernor.Status;
+
+    //Only create history if the status actually changed
+    if (previousStatus != updatedGovernor.Status)
+    {
+        GovernorHistory newHistory = new GovernorHistory
+        {
+            Id = governorHistory.Any()
+            ? governorHistory.Max(gh => gh.Id) + 1 : 1,
+            GovernorId = governor.Id,
+            ColonyId = governor.ColonyId,
+            PreviousStatus = previousStatus,
+            NewStatus = updatedGovernor.Status,
+            TimeStamp = DateTime.UtcNow
+        };
+
+        governorHistory.Add(newHistory);
+    }
+    return Results.NoContent();
+});
 
 //Delete Governor
-app.MapDelete("/api/governors/{id}", (int id) =>
+app.MapDelete("/governors/{id}", (int id) =>
 {
     Governor? governor = governors.FirstOrDefault(g => g.Id == id);
 
@@ -372,29 +413,44 @@ app.MapDelete("/api/governors/{id}", (int id) =>
     return Results.NoContent();
 });
 
-
-var summaries = new[]
+//Get all GovernorHistory records
+app.MapGet("/governorhistory", () =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    return governorHistory.Select(gh => new GovernorHistoryDTO
+    {
+        Id = gh.Id,
+        GovernorId = gh.GovernorId,
+        ColonyId = gh.ColonyId,
+        PreviousStatus = gh.PreviousStatus,
+        NewStatus = gh.NewStatus,
+        Timestamp = gh.TimeStamp
 
-app.MapGet("/weatherforecast", () =>
+    });
+});
+
+//Get GovernorHistory by Id
+app.MapGet("/governorhistory/{id}", (int id) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    GovernorHistory? history =
+    governorHistory.FirstOrDefault(gh => gh.Id == id);
+    if (history == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(new GovernorHistoryDTO
+    {
+        Id = history.Id,
+        GovernorId = history.GovernorId,
+        ColonyId = history.ColonyId,
+        PreviousStatus = history.PreviousStatus,
+        NewStatus = history.NewStatus,
+        Timestamp = history.TimeStamp
+    });
+});
+
+
+
+
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
