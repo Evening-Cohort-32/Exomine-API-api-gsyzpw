@@ -381,7 +381,7 @@ app.MapGet("/api/miningfacilities", () =>
     {
         Id = f.Id,
         Name = f.Name,
-        Active = f.Active
+        Status = f.Status
     });
 });
 
@@ -399,7 +399,7 @@ app.MapGet("/api/miningfacilities/{id}", (int id) =>
     {
         Id = facility.Id,
         Name = facility.Name,
-        Active = facility.Active
+        Status = facility.Status
     });
 });
 
@@ -410,7 +410,7 @@ app.MapPost("/api/miningfacilities", (MiningFacilityDTO facilityDTO) =>
     {
         Id = miningFacilities.Max(f => f.Id) +1,
         Name = facilityDTO.Name,
-        Active = facilityDTO.Active
+        Status = facilityDTO.Status
     };
 
     miningFacilities.Add(newFacility);
@@ -421,7 +421,7 @@ app.MapPost("/api/miningfacilities", (MiningFacilityDTO facilityDTO) =>
         {
             Id = newFacility.Id,
             Name = newFacility.Name,
-            Active = newFacility.Active
+            Status = newFacility.Status
         }
     );
 });
@@ -437,13 +437,13 @@ app.MapPut("/api/miningfacilities/{id}", (int id, MiningFacilityDTO facilityDTO)
     }
 
     facilityToUpdate.Name = facilityDTO.Name;
-    facilityToUpdate.Active = facilityDTO.Active;
+    facilityToUpdate.Status = facilityDTO.Status;
 
     return Results.Ok(new MiningFacilityDTO
     {
         Id = facilityToUpdate.Id,
         Name = facilityToUpdate.Name,
-        Active = facilityToUpdate.Active
+        Status = facilityToUpdate.Status
     });
 });
 
