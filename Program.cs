@@ -1,4 +1,6 @@
+using System.ComponentModel.Design;
 using ExomineAPI.Models;
+using ExomineAPI.Models.DTO;
 using ExomineAPI.Models.DTOs;
 
 List<Colony> colonies = new List<Colony>
@@ -372,6 +374,98 @@ app.MapDelete("/api/governors/{id}", (int id) =>
     return Results.NoContent();
 });
 
+<<<<<<< HEAD
+//MiningFacility get all
+app.MapGet("/api/miningfacilities", () =>
+{
+    return miningFacilities.Select(f => new MiningFacilityDTO
+    {
+        Id = f.Id,
+        Name = f.Name,
+        Status = f.Status
+    });
+});
+
+//MiningFacility get Id
+app.MapGet("/api/miningfacilities/{id}", (int id) =>
+{
+    MiningFacility facility = miningFacilities.FirstOrDefault(f => f.Id == id);
+
+    if (facility == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(new MiningFacilityDTO
+    {
+        Id = facility.Id,
+        Name = facility.Name,
+        Status = facility.Status
+    });
+});
+
+//MiningFacility create
+app.MapPost("/api/miningfacilities", (MiningFacilityDTO facilityDTO) =>
+{
+    MiningFacility newFacility = new MiningFacility
+    {
+        Id = miningFacilities.Max(f => f.Id) +1,
+        Name = facilityDTO.Name,
+        Status = facilityDTO.Status
+    };
+
+    miningFacilities.Add(newFacility);
+
+    return Results.Created(
+        $"/api/miningfacilities/{newFacility.Id}",
+        new MiningFacilityDTO
+        {
+            Id = newFacility.Id,
+            Name = newFacility.Name,
+            Status = newFacility.Status
+        }
+    );
+});
+
+//MiningFacility update
+app.MapPut("/api/miningfacilities/{id}", (int id, MiningFacilityDTO facilityDTO) =>
+{
+    MiningFacility facilityToUpdate = miningFacilities.FirstOrDefault(f => f.Id == id);
+
+    if (facilityToUpdate == null)
+    {
+        return Results.NotFound();
+    }
+
+    facilityToUpdate.Name = facilityDTO.Name;
+    facilityToUpdate.Status = facilityDTO.Status;
+
+    return Results.Ok(new MiningFacilityDTO
+    {
+        Id = facilityToUpdate.Id,
+        Name = facilityToUpdate.Name,
+        Status = facilityToUpdate.Status
+    });
+});
+
+//MiningFacility delete
+app.MapDelete("/api/miningfacilities/{id}", (int id) =>
+{
+    MiningFacility facilityToDelete = miningFacilities.FirstOrDefault(f => f.Id == id);
+
+    if (facilityToDelete == null)
+    {
+        return Results.NotFound();
+    }
+
+    miningFacilities.Remove(facilityToDelete);
+
+    return Results.NoContent();
+});
+
+app.Run();
+
+=======
 
 //Colony CRUD Below
 
@@ -473,3 +567,4 @@ app.MapDelete("/api/colony/{id}", (int id, Colony colony) =>
 });
 
 app.Run();
+>>>>>>> main
