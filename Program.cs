@@ -653,7 +653,7 @@ app.MapGet("/api/mineral/{id}", (int id) =>
 });
 
 //Create Mineral
-app.MapPost("/api/minerals/{id}", (Mineral mineral) =>
+app.MapPost("/api/minerals", (Mineral mineral) =>
 {
     mineral.Id = minerals.Max(m => m.Id) + 1;
     minerals.Add(mineral);
@@ -699,5 +699,143 @@ app.MapPut("/api/mineral/{id}", (int id, Mineral mineral) =>
 
     return Results.NoContent();
 });
+
+//ColonyInventory CRUD
+
+//Get All ColonyInventory
+app.MapGet("/api/colonyInventory", () =>
+{
+    return colonyInventory.Select(ci => new ColonyInventoryDTO
+    {
+        Id = ci.Id,
+        MineralId = ci.MineralId,
+        ColonyId = ci.ColonyId,
+        Quantity = ci.Quantity,
+        Colony = colonies
+            .Where(c => c.Id == ci.ColonyId)
+            .Select(c => new ColonyDTO
+            {
+                Id = c.Id,
+                Name = c.Name
+
+            })
+            .FirstOrDefault(),
+        Mineral = minerals
+            .Where(m => m.Id == ci.MineralId)
+            .Select(m => new MineralDTO
+            {
+                Id = m.Id,
+                Name = m.Name
+            })
+            .FirstOrDefault()
+    });
+});
+
+//Get one ColonyInventory by Id
+app.MapGet("/api/colonyInventory/{id}", (int id) =>
+{
+    ColonyInventory colonyInvt = colonyInventory.FirstOrDefault(ci => ci.Id == id);
+    if (colonyInvt == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(new ColonyInventoryDTO
+    {
+       Id = colonyInvt.Id,
+        MineralId = colonyInvt.MineralId,
+        ColonyId = colonyInvt.ColonyId,
+        Quantity = colonyInvt.Quantity,
+        Colony = colonies
+            .Where(c => c.Id == colonyInvt.ColonyId)
+            .Select(c => new ColonyDTO
+            {
+                Id = c.Id,
+                Name = c.Name
+
+            })
+            .FirstOrDefault(),
+        Mineral = minerals
+            .Where(m => m.Id == colonyInvt.MineralId)
+            .Select(m => new MineralDTO
+            {
+                Id = m.Id,
+                Name = m.Name
+            })
+            .FirstOrDefault() 
+    });
+});
+
+//Create ColonyInventory
+app.MapPost("/api/colonyInventory/", (ColonyInventory colonyInvt) =>
+{
+    colonyInvt.Id = colonyInventory.Max(ci => ci.Id) + 1;
+    colonyInventory.Add(colonyInvt);
+
+    return Results.Created($"/api/colonyInventory/{colonyInvt.Id}", new ColonyInventoryDTO
+    {
+        Id = colonyInvt.Id,
+        MineralId = colonyInvt.MineralId,
+        ColonyId = colonyInvt.ColonyId,
+        Quantity = colonyInvt.Quantity,
+        Colony = colonies
+            .Where(c => c.Id == colonyInvt.ColonyId)
+            .Select(c => new ColonyDTO
+            {
+                Id = c.Id,
+                Name = c.Name
+
+            })
+            .FirstOrDefault(),
+        Mineral = minerals
+            .Where(m => m.Id == colonyInvt.MineralId)
+            .Select(m => new MineralDTO
+            {
+                Id = m.Id,
+                Name = m.Name
+            })
+            .FirstOrDefault()
+
+    });
+});
+
+//Delete ColonyInventory by Id
+app.MapDelete("/api/colonyInventory/{id}", (int id, ColonyInventory colonyInvt) =>
+{
+    ColonyInventory CIToDelete = colonyInventory.FirstOrDefault(ci => ci.Id == id);
+    if (CIToDelete == null)
+    {
+        return Results.NoContent();
+    }
+    else
+    {
+        return Results.Ok(colonyInventory.Remove(CIToDelete));
+    }
+});
+
+//Edit ColonyInventory by Id
+app.MapPut("/api/colonyInventory/{id}", (int id, ColonyInventory colonyInvt) =>
+{
+    ColonyInventory CIToUpdate = colonyInventory.FirstOrDefault(ci => ci.Id == id);
+    if (CIToUpdate == null)
+    {
+        return Results.NotFound();
+    }
+    if (id != colonyInvt.Id)
+    {
+        return Results.BadRequest();
+    }
+
+    CIToUpdate.Id = colonyInvt.Id;
+    CIToUpdate.MineralId = colonyInvt.MineralId;
+    CIToUpdate.ColonyId = colonyInvt.ColonyId;
+    CIToUpdate.Quantity = colonyInvt.Quantity;
+    CIToUpdate.Colony = colonyInvt.Colony;
+    CIToUpdate.Mineral = colonyInvt.Mineral;
+
+    return Results.NoContent();
+});
+
+
 
 app.Run();
