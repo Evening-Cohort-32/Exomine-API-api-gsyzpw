@@ -7,4 +7,6 @@ public class ColonyInventoryDTO
     public int ColonyId { get; set; }
     public int Quantity { get; set; }
 
+    public ColonyDTO Colony { get; set; }
+    public MineralDTO Mineral { get; set; }
 }

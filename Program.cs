@@ -329,7 +329,7 @@ app.MapGet("/api/governors/{id}", (int id) =>
 });
 
 //Create Governor
-app.MapPost("/governors", (GovernorDTO governorDTO) =>
+app.MapPost("/api/governors", (GovernorDTO governorDTO) =>
 {
     Colony? colony = colonies.FirstOrDefault(c => c.Id == governorDTO.ColonyId);
 
@@ -374,6 +374,7 @@ app.MapDelete("/api/governors/{id}", (int id) =>
     return Results.NoContent();
 });
 
+<<<<<<< HEAD
 //MiningFacility get all
 app.MapGet("/api/miningfacilities", () =>
 {
@@ -464,3 +465,106 @@ app.MapDelete("/api/miningfacilities/{id}", (int id) =>
 
 app.Run();
 
+=======
+
+//Colony CRUD Below
+
+//Get All Colonies
+app.MapGet("/api/colony", () =>
+{
+    return colonies.Select(c => new ColonyDTO
+    {
+        Id = c.Id,
+        Name = c.Name,
+        Governors = governors
+            .Where(g => g.ColonyId == c.Id)
+            .Select(g => new GovernorDTO
+            {
+                Id = g.Id,
+                Name = g.Name,
+                ColonyId = g.ColonyId,
+                Status = g.Status
+            })
+            .ToList()
+    });
+});
+
+//Get One Colony by Id
+app.MapGet("/api/colony/{id}", (int id) =>
+{
+    Colony colony = colonies.FirstOrDefault(c => c.Id == id);
+    if (colony == null)
+    {
+        return Results.NotFound();
+    }
+
+    List<ColonyInventory> inventory = colonyInventory
+        .Where(i => i.ColonyId == id)
+        .ToList();
+
+    List<Mineral> inventoryMinerals = colonyInventory
+        .Where(i => i.ColonyId == id)
+        .Select(i => minerals.First(m => m.Id == i.MineralId))
+        .ToList();
+
+    return Results.Ok(new ColonyDTO
+    {
+        Id = colony.Id,
+        Name = colony.Name,
+        Governors = governors
+            .Where(g => g.ColonyId == colony.Id)
+            .Select(g => new GovernorDTO
+            {
+                Id = g.Id,
+                Name = g.Name,
+                ColonyId = g.ColonyId,
+                Status = g.Status
+            })
+            .ToList(),
+        Inventory = inventory
+            .Where(i => i.ColonyId == colony.Id)
+            .Select(i => new ColonyInventoryDTO
+            {
+                Id = i.Id,
+                Mineral = minerals
+                .Where(m => m.Id == i.MineralId)
+                .Select(m => new MineralDTO
+                {
+                    Id = m.Id,
+                    Name = m.Name
+                })
+                .FirstOrDefault(),
+                Quantity = i.Quantity
+            }).ToList()
+    });
+});
+
+//Create Colony
+app.MapPost("/api/colony", (Colony colony) =>
+{
+    colony.Id = colonies.Max(c => c.Id) + 1;
+    colonies.Add(colony);
+
+    return Results.Created($"/api/colony/{colony.Id}", new ColonyDTO
+    {
+        Id = colony.Id,
+        Name = colony.Name
+    });
+});
+
+//Delete Colony by Id
+app.MapDelete("/api/colony/{id}", (int id, Colony colony) =>
+{
+    Colony colonyDelete = colonies.FirstOrDefault(c => c.Id == id);
+    if (colonyDelete == null)
+    {
+        return Results.NoContent();
+    }
+    else
+    {
+        return Results.Ok(colonies.Remove(colonyDelete));
+    }
+});
+
+app.Run();
+>>>>>>> main
