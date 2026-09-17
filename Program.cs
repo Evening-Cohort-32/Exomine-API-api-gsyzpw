@@ -372,7 +372,6 @@ app.MapDelete("/api/governors/{id}", (int id) =>
     return Results.NoContent();
 });
 
-<<<<<<< HEAD
 //MiningFacility get all
 app.MapGet("/api/miningfacilities", () =>
 {
@@ -463,7 +462,6 @@ app.MapDelete("/api/miningfacilities/{id}", (int id) =>
 
 app.Run();
 
-=======
 
 //Colony CRUD Below
 
@@ -654,5 +652,52 @@ app.MapGet("/api/mineral/{id}", (int id) =>
     });
 });
 
+//Create Mineral
+app.MapPost("/api/minerals/{id}", (Mineral mineral) =>
+{
+    mineral.Id = minerals.Max(m => m.Id) + 1;
+    minerals.Add(mineral);
+
+    return Results.Created($"/api/mineral/{mineral.Id}", new MineralDTO
+    {
+        Id = mineral.Id,
+        Name = mineral.Name
+    });
+});
+
+//Delete Mineral by Id
+app.MapDelete("/api/mineral/{id}", (int id, Mineral mineral) =>
+{
+    Mineral mineralDelete = minerals.FirstOrDefault(m => m.Id == id);
+    if (mineralDelete == null)
+    {
+        return Results.NoContent();
+    }
+    else
+    {
+        return Results.Ok(minerals.Remove(mineralDelete));
+    }
+});
+
+//Edit Mineral by Id
+app.MapPut("/api/mineral/{id}", (int id, Mineral mineral) =>
+{
+    Mineral mineralToUpdate = minerals.FirstOrDefault(m => m.Id == id);
+    if (mineralToUpdate == null)
+    {
+        return Results.NotFound();
+    }
+    if (id != mineral.Id)
+    {
+        return Results.BadRequest();
+    }
+
+    mineralToUpdate.Id = mineral.Id;
+    mineralToUpdate.Name = mineral.Name;
+    mineralToUpdate.ColonyDistro = mineral.ColonyDistro;
+    mineralToUpdate.FacilityDistro = mineral.FacilityDistro;
+
+    return Results.NoContent();
+});
+
 app.Run();
->>>>>>> main
