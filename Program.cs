@@ -1,6 +1,4 @@
-using System.ComponentModel.Design;
 using ExomineAPI.Models;
-using ExomineAPI.Models.DTO;
 using ExomineAPI.Models.DTOs;
 
 List<Colony> colonies = new List<Colony>
@@ -527,15 +525,16 @@ app.MapGet("/api/colony/{id}", (int id) =>
             {
                 Id = i.Id,
                 Mineral = minerals
-                .Where(m => m.Id == i.MineralId)
-                .Select(m => new MineralDTO
-                {
-                    Id = m.Id,
-                    Name = m.Name
-                })
-                .FirstOrDefault(),
+                    .Where(m => m.Id == i.MineralId)
+                    .Select(m => new MineralDTO
+                    {
+                        Id = m.Id,
+                        Name = m.Name
+                    })
+                    .FirstOrDefault(),
                 Quantity = i.Quantity
-            }).ToList()
+            })
+            .ToList()
     });
 });
 
@@ -564,6 +563,95 @@ app.MapDelete("/api/colony/{id}", (int id, Colony colony) =>
     {
         return Results.Ok(colonies.Remove(colonyDelete));
     }
+});
+
+//Edit Colony by Id
+app.MapPut("/api/colony/{id}", (int id, Colony colony) =>
+{
+    Colony colonyToUpdate = colonies.FirstOrDefault(c => c.Id == id);
+    if (colonyToUpdate == null)
+    {
+        return Results.NotFound();
+    }
+    if (id != colony.Id)
+    {
+        return Results.BadRequest();
+    }
+
+    colonyToUpdate.Id = colony.Id;
+    colonyToUpdate.Name = colony.Name;
+    colonyToUpdate.Governors = colony.Governors;
+    colonyToUpdate.Inventory = colonyInventory;
+
+    return Results.NoContent();
+});
+
+//Mineral CRUD below
+
+//Get All Minerals
+app.MapGet("/api/mineral", () =>
+{
+    return minerals.Select(m => new MineralDTO
+    {
+        Id = m.Id,
+        Name = m.Name
+    });
+});
+
+//Get one Mineral By Id
+app.MapGet("/api/mineral/{id}", (int id) =>
+{
+    Mineral mineral = minerals.FirstOrDefault(m => m.Id == id);
+    if(mineral == null)
+    {
+        return Results.NotFound();
+    }
+
+    List<ColonyInventory> colonyDistro = colonyInventory
+        .Where(c => c.MineralId == id)
+        .ToList();
+
+    List<FacilityInventory> facilityDistro = facilityInventory
+        .Where(f => f.MineralId == id)
+        .ToList();
+
+    return Results.Ok(new MineralDTO
+    {
+       Id = mineral.Id,
+       Name = mineral.Name,
+       ColonyDistro = colonyInventory
+            .Where(cd => cd.MineralId == mineral.Id)
+            .Select(cd => new ColonyInventoryDTO
+            {
+                Id = cd.Id,
+                Colony = colonies
+                    .Where(c => c.Id == cd.ColonyId)
+                    .Select(c => new ColonyDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    })
+                    .FirstOrDefault(),
+                Quantity = cd.Quantity
+        }).ToList(),
+        FacilityDistro = facilityInventory
+            .Where(fd => fd.MineralId == mineral.Id)
+            .Select(fd => new FacilityInventoryDTO
+            {
+                Id = fd.Id,
+                MiningFacility = miningFacilities
+                    .Where(f => f.Id == fd.MiningFacilityId)
+                    .Select(f => new MiningFacilityDTO
+                    {
+                        Id = f.Id,
+                        Name = f.Name,
+                        Status = f.Status
+                    })
+                    .FirstOrDefault(),
+                SaleQuantity = fd.SaleQuantity
+            })
+            .ToList()
+    });
 });
 
 app.Run();

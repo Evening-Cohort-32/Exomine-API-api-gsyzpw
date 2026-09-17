@@ -1,4 +1,4 @@
-using ExomineAPI.Models.DTO;
+using ExomineAPI.Models.DTOs;
 
 namespace ExomineAPI.Models.DTOs;
 
