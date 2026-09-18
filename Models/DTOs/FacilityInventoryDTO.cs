@@ -1,4 +1,4 @@
-namespace ExomineAPI.Models.DTO;
+namespace ExomineAPI.Models.DTOs;
 
 public class FacilityInventoryDTO
 {
@@ -7,7 +7,7 @@ public class FacilityInventoryDTO
     public int MineralId { get; set; }
     public int SaleQuantity { get; set; }
 
-    public MiningFacility MiningFacility { get; set; }
-    public Mineral Mineral { get; set; }
+    public MiningFacilityDTO MiningFacility { get; set; }
+    public MineralDTO Mineral { get; set; }
 
 }
