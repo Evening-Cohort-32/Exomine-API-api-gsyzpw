@@ -406,7 +406,7 @@ app.MapPost("/api/miningfacilities", (MiningFacilityDTO facilityDTO) =>
 {
     MiningFacility newFacility = new MiningFacility
     {
-        Id = miningFacilities.Max(f => f.Id) +1,
+        Id = miningFacilities.Max(f => f.Id) + 1,
         Name = facilityDTO.Name,
         Status = facilityDTO.Status
     };
@@ -459,9 +459,6 @@ app.MapDelete("/api/miningfacilities/{id}", (int id) =>
 
     return Results.NoContent();
 });
-
-app.Run();
-
 
 //Colony CRUD Below
 
@@ -550,7 +547,7 @@ app.MapPost("/api/colony", (Colony colony) =>
 });
 
 //Delete Colony by Id
-app.MapDelete("/api/colony/{id}", (int id, Colony colony) =>
+app.MapDelete("/api/colony/{id}", (int id) =>
 {
     Colony colonyDelete = colonies.FirstOrDefault(c => c.Id == id);
     if (colonyDelete == null)
@@ -600,7 +597,7 @@ app.MapGet("/api/mineral", () =>
 app.MapGet("/api/mineral/{id}", (int id) =>
 {
     Mineral mineral = minerals.FirstOrDefault(m => m.Id == id);
-    if(mineral == null)
+    if (mineral == null)
     {
         return Results.NotFound();
     }
@@ -615,9 +612,9 @@ app.MapGet("/api/mineral/{id}", (int id) =>
 
     return Results.Ok(new MineralDTO
     {
-       Id = mineral.Id,
-       Name = mineral.Name,
-       ColonyDistro = colonyInventory
+        Id = mineral.Id,
+        Name = mineral.Name,
+        ColonyDistro = colonyInventory
             .Where(cd => cd.MineralId == mineral.Id)
             .Select(cd => new ColonyInventoryDTO
             {
@@ -631,7 +628,7 @@ app.MapGet("/api/mineral/{id}", (int id) =>
                     })
                     .FirstOrDefault(),
                 Quantity = cd.Quantity
-        }).ToList(),
+            }).ToList(),
         FacilityDistro = facilityInventory
             .Where(fd => fd.MineralId == mineral.Id)
             .Select(fd => new FacilityInventoryDTO
@@ -666,7 +663,7 @@ app.MapPost("/api/minerals", (Mineral mineral) =>
 });
 
 //Delete Mineral by Id
-app.MapDelete("/api/mineral/{id}", (int id, Mineral mineral) =>
+app.MapDelete("/api/mineral/{id}", (int id) =>
 {
     Mineral mineralDelete = minerals.FirstOrDefault(m => m.Id == id);
     if (mineralDelete == null)
@@ -761,7 +758,7 @@ app.MapGet("/api/colonyInventory/{id}", (int id) =>
                 Id = m.Id,
                 Name = m.Name
             })
-            .FirstOrDefault() 
+            .FirstOrDefault()
     });
 });
 
@@ -799,7 +796,7 @@ app.MapPost("/api/colonyInventory", (ColonyInventory colonyInvt) =>
 });
 
 //Delete CI by Id
-app.MapDelete("/api/colonyInventory/{id}", (int id, ColonyInventory colonyInvt) =>
+app.MapDelete("/api/colonyInventory/{id}", (int id) =>
 {
     ColonyInventory CIToDelete = colonyInventory.FirstOrDefault(ci => ci.Id == id);
     if (CIToDelete == null)
@@ -934,7 +931,7 @@ app.MapPost("/api/facilityInventory", (FacilityInventory facilityInvt) =>
 });
 
 //Delete FI by Id
-app.MapDelete("/api/facilityInventory/{id}", (int id, FacilityInventory facilityInvt) =>
+app.MapDelete("/api/facilityInventory/{id}", (int id) =>
 {
     FacilityInventory FIToDelete = facilityInventory.FirstOrDefault(fi => fi.Id == id);
     if (FIToDelete == null)
