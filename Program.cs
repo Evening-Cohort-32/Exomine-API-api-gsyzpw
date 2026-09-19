@@ -289,8 +289,8 @@ app.UseHttpsRedirection();
 
 
 
-//Get all active Governors
-app.MapGet("/api/governors", (bool? status) =>
+//Get all Governors, optionally filtered by status
+app.MapGet("/governors", (bool? status) =>
 {
     List<Governor> governorsToReturn = governors;
 
@@ -308,7 +308,7 @@ app.MapGet("/api/governors", (bool? status) =>
 });
 
 //Get Governor by Id
-app.MapGet("/api/governors/{id}", (int id) =>
+app.MapGet("/governors/{id}", (int id) =>
 {
     Governor? governor =
         governors.FirstOrDefault(g => g.Id == id);
@@ -357,10 +357,51 @@ app.MapPost("/api/governors", (GovernorDTO governorDTO) =>
 });
 
 //Update Governor (also creates GovernorHistory)
-//app.MapPut("/governors/{id}", )
+app.MapPut("/governors/{id}", (int id, GovernorDTO updatedGovernor) =>
+{
+    Governor? governor = governors.FirstOrDefault(g => g.Id == id);
+
+    if (governor == null)
+    {
+        return Results.NotFound();
+    }
+
+    Colony? colony = colonies.FirstOrDefault(c => c.Id == updatedGovernor.ColonyId);
+
+    if (colony == null)
+    {
+        return Results.BadRequest();
+    }
+
+    //Save the old status BEFORE changing the governor
+    bool previousStatus = governor.Status;
+
+    //Update the governor
+    governor.Name = updatedGovernor.Name;
+    governor.ColonyId = updatedGovernor.ColonyId;
+    governor.Status = updatedGovernor.Status;
+
+    //Only create history if the status actually changed
+    if (previousStatus != updatedGovernor.Status)
+    {
+        GovernorHistory newHistory = new GovernorHistory
+        {
+            Id = governorHistory.Any()
+            ? governorHistory.Max(gh => gh.Id) + 1 : 1,
+            GovernorId = governor.Id,
+            ColonyId = governor.ColonyId,
+            PreviousStatus = previousStatus,
+            NewStatus = updatedGovernor.Status,
+            TimeStamp = DateTime.UtcNow
+        };
+
+        governorHistory.Add(newHistory);
+    }
+    return Results.NoContent();
+});
 
 //Delete Governor
-app.MapDelete("/api/governors/{id}", (int id) =>
+app.MapDelete("/governors/{id}", (int id) =>
 {
     Governor? governor = governors.FirstOrDefault(g => g.Id == id);
 
@@ -372,7 +413,45 @@ app.MapDelete("/api/governors/{id}", (int id) =>
     return Results.NoContent();
 });
 
-//MiningFacility get all
+//Get all GovernorHistory records
+app.MapGet("/governorhistory", () =>
+{
+    return governorHistory.Select(gh => new GovernorHistoryDTO
+    {
+        Id = gh.Id,
+        GovernorId = gh.GovernorId,
+        ColonyId = gh.ColonyId,
+        PreviousStatus = gh.PreviousStatus,
+        NewStatus = gh.NewStatus,
+        Timestamp = gh.TimeStamp
+
+    });
+});
+
+//Get GovernorHistory by Id
+app.MapGet("/governorhistory/{id}", (int id) =>
+{
+    GovernorHistory? history =
+        governorHistory.FirstOrDefault(gh => gh.Id == id);
+
+    if (history == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(new GovernorHistoryDTO
+    {
+        Id = history.Id,
+        GovernorId = history.GovernorId,
+        ColonyId = history.ColonyId,
+        PreviousStatus = history.PreviousStatus,
+        NewStatus = history.NewStatus,
+        Timestamp = history.TimeStamp
+    });
+});
+
+
+// MiningFacility get all
 app.MapGet("/api/miningfacilities", () =>
 {
     return miningFacilities.Select(f => new MiningFacilityDTO
@@ -383,10 +462,11 @@ app.MapGet("/api/miningfacilities", () =>
     });
 });
 
-//MiningFacility get Id
+// MiningFacility get by Id
 app.MapGet("/api/miningfacilities/{id}", (int id) =>
 {
-    MiningFacility facility = miningFacilities.FirstOrDefault(f => f.Id == id);
+    MiningFacility? facility =
+        miningFacilities.FirstOrDefault(f => f.Id == id);
 
     if (facility == null)
     {
@@ -406,7 +486,7 @@ app.MapPost("/api/miningfacilities", (MiningFacilityDTO facilityDTO) =>
 {
     MiningFacility newFacility = new MiningFacility
     {
-        Id = miningFacilities.Max(f => f.Id) +1,
+        Id = miningFacilities.Max(f => f.Id) + 1,
         Name = facilityDTO.Name,
         Status = facilityDTO.Status
     };
@@ -459,6 +539,7 @@ app.MapDelete("/api/miningfacilities/{id}", (int id) =>
 
     return Results.NoContent();
 });
+
 
 //Colony CRUD Below
 
@@ -597,7 +678,7 @@ app.MapGet("/api/mineral", () =>
 app.MapGet("/api/mineral/{id}", (int id) =>
 {
     Mineral mineral = minerals.FirstOrDefault(m => m.Id == id);
-    if(mineral == null)
+    if (mineral == null)
     {
         return Results.NotFound();
     }
@@ -614,7 +695,7 @@ app.MapGet("/api/mineral/{id}", (int id) =>
     {
        Id = mineral.Id,
        Name = mineral.Name,
-       ColonyDistro = colonyInventories
+       ColonyDistro = colonyInventory
             .Where(cd => cd.MineralId == mineral.Id)
             .Select(cd => new ColonyInventoryDTO
             {
@@ -629,7 +710,7 @@ app.MapGet("/api/mineral/{id}", (int id) =>
                     .FirstOrDefault(),
                 Quantity = cd.Quantity
         }).ToList(),
-        FacilityDistro = facilityInventories
+        FacilityDistro = facilityInventory
             .Where(fd => fd.MineralId == mineral.Id)
             .Select(fd => new FacilityInventoryDTO
             {
@@ -758,7 +839,7 @@ app.MapGet("/api/colonyInventory/{id}", (int id) =>
                 Id = m.Id,
                 Name = m.Name
             })
-            .FirstOrDefault() 
+            .FirstOrDefault()
     });
 });
 
