@@ -432,45 +432,47 @@ app.MapGet("/governorhistory", () =>
 app.MapGet("/governorhistory/{id}", (int id) =>
 {
     GovernorHistory? history =
-    governorHistory.FirstOrDefault(gh => gh.Id == id);
+        governorHistory.FirstOrDefault(gh => gh.Id == id);
+
     if (history == null)
-        //MiningFacility get all
-        app.MapGet("/api/miningfacilities", () =>
-        {
-            return miningFacilities.Select(f => new MiningFacilityDTO
-            {
-                Id = f.Id,
-                Name = f.Name,
-                Status = f.Status
-            });
-        });
-
-    //MiningFacility get Id
-    app.MapGet("/api/miningfacilities/{id}", (int id) =>
     {
-        MiningFacility facility = miningFacilities.FirstOrDefault(f => f.Id == id);
+        return Results.NotFound();
+    }
 
-        if (facility == null)
-        {
-            return Results.NotFound();
-        }
-
-        return Results.Ok(new GovernorHistoryDTO
-        {
-            Id = history.Id,
-            GovernorId = history.GovernorId,
-            ColonyId = history.ColonyId,
-            PreviousStatus = history.PreviousStatus,
-            NewStatus = history.NewStatus,
-            Timestamp = history.TimeStamp
-        });
+    return Results.Ok(new GovernorHistoryDTO
+    {
+        Id = history.Id,
+        GovernorId = history.GovernorId,
+        ColonyId = history.ColonyId,
+        PreviousStatus = history.PreviousStatus,
+        NewStatus = history.NewStatus,
+        Timestamp = history.TimeStamp
     });
+});
 
 
+// MiningFacility get all
+app.MapGet("/api/miningfacilities", () =>
+{
+    return miningFacilities.Select(f => new MiningFacilityDTO
+    {
+        Id = f.Id,
+        Name = f.Name,
+        Status = f.Status
+    });
+});
 
+// MiningFacility get by Id
+app.MapGet("/api/miningfacilities/{id}", (int id) =>
+{
+    MiningFacility? facility =
+        miningFacilities.FirstOrDefault(f => f.Id == id);
 
+    if (facility == null)
+    {
+        return Results.NotFound();
+    }
 
-    app.Run();
     return Results.Ok(new MiningFacilityDTO
     {
         Id = facility.Id,
@@ -537,8 +539,6 @@ app.MapDelete("/api/miningfacilities/{id}", (int id) =>
 
     return Results.NoContent();
 });
-
-app.Run();
 
 
 //Colony CRUD Below
@@ -628,7 +628,7 @@ app.MapPost("/api/colony", (Colony colony) =>
 });
 
 //Delete Colony by Id
-app.MapDelete("/api/colony/{id}", (int id, Colony colony) =>
+app.MapDelete("/api/colony/{id}", (int id) =>
 {
     Colony colonyDelete = colonies.FirstOrDefault(c => c.Id == id);
     if (colonyDelete == null)
@@ -744,7 +744,7 @@ app.MapPost("/api/minerals", (Mineral mineral) =>
 });
 
 //Delete Mineral by Id
-app.MapDelete("/api/mineral/{id}", (int id, Mineral mineral) =>
+app.MapDelete("/api/mineral/{id}", (int id) =>
 {
     Mineral mineralDelete = minerals.FirstOrDefault(m => m.Id == id);
     if (mineralDelete == null)
@@ -877,7 +877,7 @@ app.MapPost("/api/colonyInventory", (ColonyInventory colonyInvt) =>
 });
 
 //Delete CI by Id
-app.MapDelete("/api/colonyInventory/{id}", (int id, ColonyInventory colonyInvt) =>
+app.MapDelete("/api/colonyInventory/{id}", (int id) =>
 {
     ColonyInventory CIToDelete = colonyInventory.FirstOrDefault(ci => ci.Id == id);
     if (CIToDelete == null)
@@ -1012,7 +1012,7 @@ app.MapPost("/api/facilityInventory", (FacilityInventory facilityInvt) =>
 });
 
 //Delete FI by Id
-app.MapDelete("/api/facilityInventory/{id}", (int id, FacilityInventory facilityInvt) =>
+app.MapDelete("/api/facilityInventory/{id}", (int id) =>
 {
     FacilityInventory FIToDelete = facilityInventory.FirstOrDefault(fi => fi.Id == id);
     if (FIToDelete == null)
