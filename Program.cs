@@ -112,7 +112,7 @@ List<Mineral> minerals = new List<Mineral>
         Name = "Nickel",
     }
 };
-List<ColonyInventory> colonyInventory = new List<ColonyInventory>
+List<ColonyInventory> colonyInventories = new List<ColonyInventory>
 {
     new ColonyInventory
     {
@@ -178,7 +178,7 @@ List<ColonyInventory> colonyInventory = new List<ColonyInventory>
         Quantity = 9
     }
 };
-List<FacilityInventory> facilityInventory = new List<FacilityInventory>
+List<FacilityInventory> facilityInventories = new List<FacilityInventory>
 {
   new FacilityInventory
     {
@@ -572,11 +572,11 @@ app.MapGet("/api/colony/{id}", (int id) =>
         return Results.NotFound();
     }
 
-    List<ColonyInventory> inventory = colonyInventory
+    List<ColonyInventory> inventory = colonyInventories
         .Where(i => i.ColonyId == id)
         .ToList();
 
-    List<Mineral> inventoryMinerals = colonyInventory
+    List<Mineral> inventoryMinerals = colonyInventories
         .Where(i => i.ColonyId == id)
         .Select(i => minerals.First(m => m.Id == i.MineralId))
         .ToList();
@@ -657,7 +657,7 @@ app.MapPut("/api/colony/{id}", (int id, Colony colony) =>
     colonyToUpdate.Id = colony.Id;
     colonyToUpdate.Name = colony.Name;
     colonyToUpdate.Governors = colony.Governors;
-    colonyToUpdate.Inventory = colonyInventory;
+    colonyToUpdate.Inventory = colonyInventories;
 
     return Results.NoContent();
 });
@@ -683,19 +683,19 @@ app.MapGet("/api/mineral/{id}", (int id) =>
         return Results.NotFound();
     }
 
-    List<ColonyInventory> colonyDistro = colonyInventory
+    List<ColonyInventory> colonyDistro = colonyInventories
         .Where(c => c.MineralId == id)
         .ToList();
 
-    List<FacilityInventory> facilityDistro = facilityInventory
+    List<FacilityInventory> facilityDistro = facilityInventories
         .Where(f => f.MineralId == id)
         .ToList();
 
     return Results.Ok(new MineralDTO
     {
-        Id = mineral.Id,
-        Name = mineral.Name,
-        ColonyDistro = colonyInventory
+       Id = mineral.Id,
+       Name = mineral.Name,
+       ColonyDistro = colonyInventory
             .Where(cd => cd.MineralId == mineral.Id)
             .Select(cd => new ColonyInventoryDTO
             {
@@ -709,7 +709,7 @@ app.MapGet("/api/mineral/{id}", (int id) =>
                     })
                     .FirstOrDefault(),
                 Quantity = cd.Quantity
-            }).ToList(),
+        }).ToList(),
         FacilityDistro = facilityInventory
             .Where(fd => fd.MineralId == mineral.Id)
             .Select(fd => new FacilityInventoryDTO
@@ -783,7 +783,7 @@ app.MapPut("/api/mineral/{id}", (int id, Mineral mineral) =>
 //Get All CI
 app.MapGet("/api/colonyInventory", () =>
 {
-    return colonyInventory.Select(ci => new ColonyInventoryDTO
+    return colonyInventories.Select(ci => new ColonyInventoryDTO
     {
         Id = ci.Id,
         MineralId = ci.MineralId,
@@ -811,7 +811,7 @@ app.MapGet("/api/colonyInventory", () =>
 //Get one CI by Id
 app.MapGet("/api/colonyInventory/{id}", (int id) =>
 {
-    ColonyInventory colonyInvt = colonyInventory.FirstOrDefault(ci => ci.Id == id);
+    ColonyInventory colonyInvt = colonyInventories.FirstOrDefault(ci => ci.Id == id);
     if (colonyInvt == null)
     {
         return Results.NotFound();
@@ -846,8 +846,8 @@ app.MapGet("/api/colonyInventory/{id}", (int id) =>
 //Create CI
 app.MapPost("/api/colonyInventory", (ColonyInventory colonyInvt) =>
 {
-    colonyInvt.Id = colonyInventory.Max(ci => ci.Id) + 1;
-    colonyInventory.Add(colonyInvt);
+    colonyInvt.Id = colonyInventories.Max(ci => ci.Id) + 1;
+    colonyInventories.Add(colonyInvt);
 
     return Results.Created($"/api/colonyInventory/{colonyInvt.Id}", new ColonyInventoryDTO
     {
@@ -879,21 +879,21 @@ app.MapPost("/api/colonyInventory", (ColonyInventory colonyInvt) =>
 //Delete CI by Id
 app.MapDelete("/api/colonyInventory/{id}", (int id) =>
 {
-    ColonyInventory CIToDelete = colonyInventory.FirstOrDefault(ci => ci.Id == id);
+    ColonyInventory CIToDelete = colonyInventories.FirstOrDefault(ci => ci.Id == id);
     if (CIToDelete == null)
     {
         return Results.NoContent();
     }
     else
     {
-        return Results.Ok(colonyInventory.Remove(CIToDelete));
+        return Results.Ok(colonyInventories.Remove(CIToDelete));
     }
 });
 
 //Edit CI by Id
 app.MapPut("/api/colonyInventory/{id}", (int id, ColonyInventory colonyInvt) =>
 {
-    ColonyInventory CIToUpdate = colonyInventory.FirstOrDefault(ci => ci.Id == id);
+    ColonyInventory CIToUpdate = colonyInventories.FirstOrDefault(ci => ci.Id == id);
     if (CIToUpdate == null)
     {
         return Results.NotFound();
@@ -918,7 +918,7 @@ app.MapPut("/api/colonyInventory/{id}", (int id, ColonyInventory colonyInvt) =>
 //Get all FI
 app.MapGet("/api/facilityInventory", () =>
 {
-    return facilityInventory.Select(fi => new FacilityInventoryDTO
+    return facilityInventories.Select(fi => new FacilityInventoryDTO
     {
         Id = fi.Id,
         MiningFacilityId = fi.MiningFacilityId,
@@ -947,7 +947,7 @@ app.MapGet("/api/facilityInventory", () =>
 //Get one FI by Id
 app.MapGet("/api/facilityInventory/{id}", (int id) =>
 {
-    FacilityInventory facilityInvt = facilityInventory.FirstOrDefault(fi => fi.Id == id);
+    FacilityInventory facilityInvt = facilityInventories.FirstOrDefault(fi => fi.Id == id);
     if (facilityInvt == null)
     {
         return Results.NotFound();
@@ -982,8 +982,8 @@ app.MapGet("/api/facilityInventory/{id}", (int id) =>
 //Create FI
 app.MapPost("/api/facilityInventory", (FacilityInventory facilityInvt) =>
 {
-    facilityInvt.Id = facilityInventory.Max(fi => fi.Id) + 1;
-    facilityInventory.Add(facilityInvt);
+    facilityInvt.Id = facilityInventories.Max(fi => fi.Id) + 1;
+    facilityInventories.Add(facilityInvt);
 
     return Results.Created($"/api/facilityInventory/{facilityInvt.Id}", new FacilityInventoryDTO
     {
@@ -1014,21 +1014,21 @@ app.MapPost("/api/facilityInventory", (FacilityInventory facilityInvt) =>
 //Delete FI by Id
 app.MapDelete("/api/facilityInventory/{id}", (int id) =>
 {
-    FacilityInventory FIToDelete = facilityInventory.FirstOrDefault(fi => fi.Id == id);
+    FacilityInventory FIToDelete = facilityInventories.FirstOrDefault(fi => fi.Id == id);
     if (FIToDelete == null)
     {
         return Results.NoContent();
     }
     else
     {
-        return Results.Ok(facilityInventory.Remove(FIToDelete));
+        return Results.Ok(facilityInventories.Remove(FIToDelete));
     }
 });
 
 //Edit FI by Id
 app.MapPut("/api/facilityInventory/{id}", (int id, FacilityInventory facilityInvt) =>
 {
-    FacilityInventory FIToUpdate = facilityInventory.FirstOrDefault(fi => fi.Id == id);
+    FacilityInventory FIToUpdate = facilityInventories.FirstOrDefault(fi => fi.Id == id);
     if (FIToUpdate == null)
     {
         return Results.NotFound();
@@ -1046,6 +1046,122 @@ app.MapPut("/api/facilityInventory/{id}", (int id, FacilityInventory facilityInv
     FIToUpdate.Mineral = facilityInvt.Mineral;
 
     return Results.NoContent();
+});
+
+//Purchase Endpoint (PUT)
+//Purchase one ton of mineral
+app.MapPut("/api/transactions/purchase", (TransactionDTO transactionDTO) =>
+{
+    //Find governor
+    Governor governor = governors.FirstOrDefault(g => g.Id == transactionDTO.GovernorId);
+
+    if (governor == null)
+    {
+        return Results.NotFound("Governor not found.");
+    }
+
+    if (!governor.Status)
+    {
+        return Results.BadRequest("Governor is inactive");
+    }
+
+    //Find mineral facility
+    MiningFacility facility = miningFacilities.FirstOrDefault(f => f.Id == transactionDTO.MiningFacilityId);
+
+    if (facility == null)
+    {
+        return Results.NotFound("Facility not found.");
+    }
+
+    if (!facility.Status)
+    {
+        return Results.BadRequest("Faciliity is inactive");
+    }
+
+    //Find mineral
+    Mineral mineral = minerals.FirstOrDefault(m => m.Id == transactionDTO.MineralId);
+
+    if (mineral == null)
+    {
+        return Results.NotFound("Mineral not found");
+    }
+
+    //Find facility inventory record
+    FacilityInventory facilityInventory = facilityInventories.FirstOrDefault(f => f.MiningFacilityId == facility.Id && f.MineralId == mineral.Id);
+
+    if (facilityInventory == null)
+    {
+        return Results.BadRequest("This facility doesn't sell this mineral");
+    }
+
+    //Check if one ton is available
+    if (facilityInventory.SaleQuantity < 1)
+    {
+        return Results.BadRequest ("Not enough minerals available ");
+    }
+
+    //Find governor's colony
+    Colony colony = colonies.FirstOrDefault(c => c.Id == governor.ColonyId);
+
+    if (colony == null)
+    {
+        return Results.NotFound("Colony not found.");
+    }
+
+    //Find colony's inventory record
+    ColonyInventory colonyInventory = colonyInventories.FirstOrDefault(c => c.ColonyId == colony.Id && c.MineralId == mineral.Id);
+
+    //Make new colony inventory record if colony never received mineral before
+    ColonyInventory newColonyInventory = null;
+
+    if (colonyInventory == null)
+    {
+        newColonyInventory = new ColonyInventory
+        {
+            Id = colonyInventories.Count > 0? colonyInventories.Max(c => c.Id) + 1: 1,
+            ColonyId = colony.Id,
+            MineralId = mineral.Id,
+            Quantity = 0
+        };
+    }
+
+    //Make transaction 
+    Transaction newTransaction = new Transaction
+    {
+        Id = transactions.Count > 0? transactions.Max(t => t.Id) +1:1,
+        GovernorId = governor.Id,
+        ColonyId = colony.Id,
+        MiningFacilityId = facility.Id,
+        MineralId = mineral.Id,
+        Quantity = 1,
+        TimeStamp = DateTime.Now
+    };
+
+    //Update inventory
+    facilityInventory.SaleQuantity -= 1;
+
+    if (colonyInventory == null)
+    {
+        colonyInventories.Add(newColonyInventory);
+        colonyInventory = newColonyInventory;
+    }
+
+    colonyInventory.Quantity += 1;
+
+    //Save transaction
+    transactions.Add(newTransaction);
+
+    //Return transaction as DTO
+    return Results.Ok(new TransactionDTO
+    {
+        Id = newTransaction.Id,
+        GovernorId = newTransaction.GovernorId,
+        ColonyId = newTransaction.ColonyId,
+        MiningFacilityId = newTransaction.MiningFacilityId,
+        MineralId = newTransaction.MineralId,
+        Quantity = newTransaction.Quantity,
+        TimeStamp = newTransaction.TimeStamp
+    });
 });
 
 app.Run();
