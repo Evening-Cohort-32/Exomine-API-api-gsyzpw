@@ -290,7 +290,7 @@ app.UseHttpsRedirection();
 
 
 //Get all Governors, optionally filtered by status
-app.MapGet("/governors", (bool? status) =>
+app.MapGet("/api/governors", (bool? status) =>
 {
     List<Governor> governorsToReturn = governors;
 
@@ -308,7 +308,7 @@ app.MapGet("/governors", (bool? status) =>
 });
 
 //Get Governor by Id
-app.MapGet("/governors/{id}", (int id) =>
+app.MapGet("/api/governors/{id}", (int id) =>
 {
     Governor? governor =
         governors.FirstOrDefault(g => g.Id == id);
@@ -450,6 +450,23 @@ app.MapGet("/governorhistory/{id}", (int id) =>
     });
 });
 
+//MiningFacility status filter
+app.MapGet("/api/miningfacilities", (bool? status) =>
+{
+    List<MiningFacility> facilitiesToReturn = miningFacilities;
+
+    if (status != null)
+    {
+        facilitiesToReturn = facilitiesToReturn.Where(f => f.Status == status).ToList();
+    }
+
+    return facilitiesToReturn.Select(f => new MiningFacilityDTO
+    {
+        Id = f.Id,
+        Name = f.Name,
+        Status = f.Status
+    });
+});
 
 // MiningFacility get all
 app.MapGet("/api/miningfacilities", () =>
@@ -1161,6 +1178,53 @@ app.MapPut("/api/transactions/purchase", (TransactionDTO transactionDTO) =>
         MineralId = newTransaction.MineralId,
         Quantity = newTransaction.Quantity,
         TimeStamp = newTransaction.TimeStamp
+    });
+});
+
+//Transactions gov, col, facility, min, and date range filter
+app.MapGet("/api/transactions", (int? governorId, int? colonyId, int? miningFacilityId, int? mineralId, DateTime? startDate, DateTime? endDate) =>
+{
+    List<Transaction> transactionsToReturn = transactions;
+
+    if (governorId != null)
+    {
+        transactionsToReturn = transactionsToReturn.Where(t => t.GovernorId == governorId).ToList();
+    }
+
+    if (colonyId != null)
+    {
+        transactionsToReturn = transactionsToReturn.Where(t => t.ColonyId == colonyId).ToList();
+    }
+
+    if (miningFacilityId != null)
+    {
+        transactionsToReturn = transactionsToReturn.Where(t => t.MiningFacilityId == miningFacilityId).ToList();
+    }
+
+    if (mineralId != null)
+    {
+        transactionsToReturn = transactionsToReturn.Where(t => t.MineralId == mineralId).ToList();
+    }
+
+    if (startDate != null)
+    {
+        transactionsToReturn = transactionsToReturn.Where(t => t.TimeStamp >= startDate).ToList();
+    }
+
+    if (endDate != null)
+    {
+        transactionsToReturn = transactionsToReturn.Where(t => t.TimeStamp <= endDate).ToList();
+    }
+
+    return transactionsToReturn.Select(t => new TransactionDTO
+    {
+        Id = t.Id,
+        GovernorId = t.GovernorId,
+        ColonyId = t.ColonyId,
+        MiningFacilityId = t.MiningFacilityId,
+        MineralId = t.MineralId,
+        Quantity = t.Quantity,
+        TimeStamp = t.TimeStamp
     });
 });
 
