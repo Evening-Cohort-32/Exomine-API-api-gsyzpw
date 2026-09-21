@@ -634,7 +634,12 @@ app.MapGet("/api/colony/{id}", (int id) =>
 //Create Colony
 app.MapPost("/api/colony", (Colony colony) =>
 {
-    colony.Id = colonies.Max(c => c.Id) + 1;
+    if (string.IsNullOrWhiteSpace(colony.Name))
+    {
+        return Results.BadRequest("Colony name is required.");
+    }
+
+    colony.Id = colonies.Count > 0 ? colonies.Max(c => c.Id) + 1 : 1;
     colonies.Add(colony);
 
     return Results.Created($"/api/colony/{colony.Id}", new ColonyDTO
@@ -669,6 +674,10 @@ app.MapPut("/api/colony/{id}", (int id, Colony colony) =>
     if (id != colony.Id)
     {
         return Results.BadRequest();
+    }
+    if (string.IsNullOrWhiteSpace(colony.Name))
+    {
+        return Results.BadRequest("Colony name is required.");
     }
 
     colonyToUpdate.Id = colony.Id;
@@ -712,7 +721,7 @@ app.MapGet("/api/mineral/{id}", (int id) =>
     {
        Id = mineral.Id,
        Name = mineral.Name,
-       ColonyDistro = colonyInventory
+       ColonyDistro = colonyInventories
             .Where(cd => cd.MineralId == mineral.Id)
             .Select(cd => new ColonyInventoryDTO
             {
@@ -727,7 +736,7 @@ app.MapGet("/api/mineral/{id}", (int id) =>
                     .FirstOrDefault(),
                 Quantity = cd.Quantity
         }).ToList(),
-        FacilityDistro = facilityInventory
+        FacilityDistro = facilityInventories
             .Where(fd => fd.MineralId == mineral.Id)
             .Select(fd => new FacilityInventoryDTO
             {
@@ -750,6 +759,11 @@ app.MapGet("/api/mineral/{id}", (int id) =>
 //Create Mineral
 app.MapPost("/api/minerals", (Mineral mineral) =>
 {
+    if (string.IsNullOrWhiteSpace(mineral.Name))
+    {
+        return Results.BadRequest("Mineral name is required.");
+    }
+
     mineral.Id = minerals.Max(m => m.Id) + 1;
     minerals.Add(mineral);
 
@@ -785,6 +799,10 @@ app.MapPut("/api/mineral/{id}", (int id, Mineral mineral) =>
     if (id != mineral.Id)
     {
         return Results.BadRequest();
+    }
+    if (string.IsNullOrWhiteSpace(mineral.Name))
+    {
+        return Results.BadRequest("Mineral name required.");
     }
 
     mineralToUpdate.Id = mineral.Id;
@@ -863,6 +881,18 @@ app.MapGet("/api/colonyInventory/{id}", (int id) =>
 //Create CI
 app.MapPost("/api/colonyInventory", (ColonyInventory colonyInvt) =>
 {
+    Colony colony = colonies.FirstOrDefault(c => c.Id == colonyInvt.ColonyId);
+    if (colony == null)
+    {
+        return Results.NotFound($"No colony exists with Id {colonyInvt.ColonyId}.");
+    }
+
+    Mineral mineral = minerals.FirstOrDefault(m => m.Id == colonyInvt.MineralId);
+    if (mineral == null)
+    {
+        return Results.NotFound($"No mineral exists with Id {colonyInvt.MineralId}.");
+    }
+
     colonyInvt.Id = colonyInventories.Max(ci => ci.Id) + 1;
     colonyInventories.Add(colonyInvt);
 
@@ -918,6 +948,18 @@ app.MapPut("/api/colonyInventory/{id}", (int id, ColonyInventory colonyInvt) =>
     if (id != colonyInvt.Id)
     {
         return Results.BadRequest();
+    }
+
+    Colony colony = colonies.FirstOrDefault(c => c.Id == colonyInvt.ColonyId);
+    if (colony == null)
+    {
+        return Results.NotFound($"No colony exists.");
+    }
+
+    Mineral mineral = minerals.FirstOrDefault(m => m.Id == colonyInvt.MineralId);
+    if (mineral == null)
+    {
+        return Results.NotFound($"No mineral exists.");
     }
 
     CIToUpdate.Id = colonyInvt.Id;
@@ -999,6 +1041,18 @@ app.MapGet("/api/facilityInventory/{id}", (int id) =>
 //Create FI
 app.MapPost("/api/facilityInventory", (FacilityInventory facilityInvt) =>
 {
+    MiningFacility facility = miningFacilities.FirstOrDefault(f => f.Id == facilityInvt.MiningFacilityId);
+    if (facility == null)
+    {
+        return Results.NotFound($"No mining facility exists.");
+    }
+
+    Mineral mineral = minerals.FirstOrDefault(m => m.Id == facilityInvt.MineralId);
+    if (mineral == null)
+    {
+        return Results.NotFound($"No mineral exists.");
+    }
+
     facilityInvt.Id = facilityInventories.Max(fi => fi.Id) + 1;
     facilityInventories.Add(facilityInvt);
 
@@ -1053,6 +1107,18 @@ app.MapPut("/api/facilityInventory/{id}", (int id, FacilityInventory facilityInv
     if (id != facilityInvt.Id)
     {
         return Results.BadRequest();
+    }
+
+    MiningFacility facility = miningFacilities.FirstOrDefault(f => f.Id == facilityInvt.MiningFacilityId);
+    if (facility == null)
+    {
+        return Results.NotFound($"No mining facility exists.");
+    }
+
+    Mineral mineral = minerals.FirstOrDefault(m => m.Id == facilityInvt.MineralId);
+    if (mineral == null)
+    {
+        return Results.NotFound($"No mineral exists.");
     }
 
     FIToUpdate.Id = facilityInvt.Id;
