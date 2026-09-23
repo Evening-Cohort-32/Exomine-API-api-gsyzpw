@@ -719,9 +719,9 @@ app.MapGet("/api/mineral/{id}", (int id) =>
 
     return Results.Ok(new MineralDTO
     {
-       Id = mineral.Id,
-       Name = mineral.Name,
-       ColonyDistro = colonyInventories
+        Id = mineral.Id,
+        Name = mineral.Name,
+        ColonyDistro = colonyInventories
             .Where(cd => cd.MineralId == mineral.Id)
             .Select(cd => new ColonyInventoryDTO
             {
@@ -735,7 +735,7 @@ app.MapGet("/api/mineral/{id}", (int id) =>
                     })
                     .FirstOrDefault(),
                 Quantity = cd.Quantity
-        }).ToList(),
+            }).ToList(),
         FacilityDistro = facilityInventories
             .Where(fd => fd.MineralId == mineral.Id)
             .Select(fd => new FacilityInventoryDTO
@@ -1180,7 +1180,7 @@ app.MapPut("/api/transactions/purchase", (TransactionDTO transactionDTO) =>
     //Check if one ton is available
     if (facilityInventory.SaleQuantity < 1)
     {
-        return Results.BadRequest ("Not enough minerals available ");
+        return Results.BadRequest("Not enough minerals available ");
     }
 
     //Find governor's colony
@@ -1201,7 +1201,7 @@ app.MapPut("/api/transactions/purchase", (TransactionDTO transactionDTO) =>
     {
         newColonyInventory = new ColonyInventory
         {
-            Id = colonyInventories.Count > 0? colonyInventories.Max(c => c.Id) + 1: 1,
+            Id = colonyInventories.Count > 0 ? colonyInventories.Max(c => c.Id) + 1 : 1,
             ColonyId = colony.Id,
             MineralId = mineral.Id,
             Quantity = 0
@@ -1211,7 +1211,7 @@ app.MapPut("/api/transactions/purchase", (TransactionDTO transactionDTO) =>
     //Make transaction 
     Transaction newTransaction = new Transaction
     {
-        Id = transactions.Count > 0? transactions.Max(t => t.Id) +1:1,
+        Id = transactions.Count > 0 ? transactions.Max(t => t.Id) + 1 : 1,
         GovernorId = governor.Id,
         ColonyId = colony.Id,
         MiningFacilityId = facility.Id,
@@ -1291,6 +1291,60 @@ app.MapGet("/api/transactions", (int? governorId, int? colonyId, int? miningFaci
         MineralId = t.MineralId,
         Quantity = t.Quantity,
         TimeStamp = t.TimeStamp
+    });
+});
+
+// Get Transaction by Id
+app.MapGet("/api/transactions/{id}", (int id) =>
+{
+    Transaction? transaction = transactions.FirstOrDefault(t => t.Id == id);
+
+    if (transaction == null)
+    {
+        return Results.NotFound();
+    }
+
+    Governor governor = governors.First(g => g.Id == transaction.GovernorId);
+    Colony colony = colonies.First(c => c.Id == transaction.ColonyId);
+    MiningFacility facility = miningFacilities.First(f => f.Id == transaction.MiningFacilityId);
+    Mineral mineral = minerals.First(m => m.Id == transaction.MineralId);
+
+    return Results.Ok(new TransactionDTO
+    {
+        Id = transaction.Id,
+        GovernorId = transaction.GovernorId,
+        ColonyId = transaction.ColonyId,
+        MiningFacilityId = transaction.MiningFacilityId,
+        MineralId = transaction.MineralId,
+        Quantity = transaction.Quantity,
+        TimeStamp = transaction.TimeStamp,
+
+        Governor = new GovernorDTO
+        {
+            Id = governor.Id,
+            Name = governor.Name,
+            ColonyId = governor.ColonyId,
+            Status = governor.Status
+        },
+
+        Colony = new ColonyDTO
+        {
+            Id = colony.Id,
+            Name = colony.Name
+        },
+
+        MiningFacility = new MiningFacilityDTO
+        {
+            Id = facility.Id,
+            Name = facility.Name,
+            Status = facility.Status
+        },
+
+        Mineral = new MineralDTO
+        {
+            Id = mineral.Id,
+            Name = mineral.Name
+        }
     });
 });
 

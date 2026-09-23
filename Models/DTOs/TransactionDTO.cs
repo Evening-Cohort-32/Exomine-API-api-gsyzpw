@@ -10,9 +10,9 @@ public class TransactionDTO
     public int Quantity { get; set; }
     public DateTime TimeStamp { get; set; }
 
-    public Governor Governor { get; set; }
-    public Colony Colony { get; set; }
-    public MiningFacility MiningFacility { get; set; }
-    public Mineral Mineral { get; set; }
+    public GovernorDTO? Governor { get; set; }
+    public ColonyDTO? Colony { get; set; }
+    public MiningFacilityDTO? MiningFacility { get; set; }
+    public MineralDTO? Mineral { get; set; }
 
 }
