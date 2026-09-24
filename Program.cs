@@ -348,7 +348,7 @@ app.MapPost("/api/governors", (GovernorDTO governorDTO) =>
 
     governors.Add(newgGovernor);
 
-    return Results.Created($"/governors/{newgGovernor.Id}", new GovernorDTO
+    return Results.Created($"/api/governors/{newgGovernor.Id}", new GovernorDTO
     {
         Id = newgGovernor.Id,
         Name = newgGovernor.Name,
@@ -359,7 +359,7 @@ app.MapPost("/api/governors", (GovernorDTO governorDTO) =>
 });
 
 //Update Governor (also creates GovernorHistory)
-app.MapPut("/governors/{id}", (int id, GovernorDTO updatedGovernor) =>
+app.MapPut("/api/governors/{id}", (int id, GovernorDTO updatedGovernor) =>
 {
     Governor? governor = governors.FirstOrDefault(g => g.Id == id);
 
@@ -403,7 +403,7 @@ app.MapPut("/governors/{id}", (int id, GovernorDTO updatedGovernor) =>
 });
 
 //Delete Governor
-app.MapDelete("/governors/{id}", (int id) =>
+app.MapDelete("/api/governors/{id}", (int id) =>
 {
     Governor? governor = governors.FirstOrDefault(g => g.Id == id);
 
@@ -416,7 +416,7 @@ app.MapDelete("/governors/{id}", (int id) =>
 });
 
 //Get all GovernorHistory records
-app.MapGet("/governorhistory", () =>
+app.MapGet("/api/governorhistory", () =>
 {
     return governorHistory.Select(gh => new GovernorHistoryDTO
     {
@@ -431,7 +431,7 @@ app.MapGet("/governorhistory", () =>
 });
 
 //Get GovernorHistory by Id
-app.MapGet("/governorhistory/{id}", (int id) =>
+app.MapGet("/api/governorhistory/{id}", (int id) =>
 {
     GovernorHistory? history =
         governorHistory.FirstOrDefault(gh => gh.Id == id);
@@ -453,7 +453,7 @@ app.MapGet("/governorhistory/{id}", (int id) =>
 });
 
 //MiningFacility status filter
-app.MapGet("/api/miningfacilities", (bool? status) =>
+app.MapGet("/api/miningfacilities/filter", (bool? status) =>
 {
     List<MiningFacility> facilitiesToReturn = miningFacilities;
 
