@@ -278,6 +278,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -289,7 +299,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
+app.UseCors("AllowFrontend");
 
 //Get all Governors, optionally filtered by status
 app.MapGet("/api/governors", (bool? status) =>
@@ -305,6 +315,14 @@ app.MapGet("/api/governors", (bool? status) =>
         Id = g.Id,
         Name = g.Name,
         ColonyId = g.ColonyId,
+        Colony = colonies
+            .Where(c => c.Id == g.ColonyId)
+            .Select(c => new ColonyDTO
+            {
+                Id = c.Id,
+                Name = c.Name
+            })
+            .FirstOrDefault(),
         Status = g.Status
     });
 });
@@ -324,6 +342,14 @@ app.MapGet("/api/governors/{id}", (int id) =>
         Id = governor.Id,
         Name = governor.Name,
         ColonyId = governor.ColonyId,
+        Colony = colonies
+            .Where(c => c.Id == governor.ColonyId)
+            .Select(c => new ColonyDTO
+            {
+                Id = c.Id,
+                Name = c.Name
+            })
+            .FirstOrDefault(),
         Status = governor.Status
     });
 });
@@ -693,7 +719,7 @@ app.MapPut("/api/colony/{id}", (int id, Colony colony) =>
 //Mineral CRUD below
 
 //Get All Minerals
-app.MapGet("/api/mineral", () =>
+app.MapGet("/api/minerals", () =>
 {
     return minerals.Select(m => new MineralDTO
     {
@@ -703,7 +729,7 @@ app.MapGet("/api/mineral", () =>
 });
 
 //Get one Mineral By Id
-app.MapGet("/api/mineral/{id}", (int id) =>
+app.MapGet("/api/minerals/{id}", (int id) =>
 {
     Mineral mineral = minerals.FirstOrDefault(m => m.Id == id);
     if (mineral == null)
@@ -777,7 +803,7 @@ app.MapPost("/api/minerals", (Mineral mineral) =>
 });
 
 //Delete Mineral by Id
-app.MapDelete("/api/mineral/{id}", (int id) =>
+app.MapDelete("/api/minerals/{id}", (int id) =>
 {
     Mineral mineralDelete = minerals.FirstOrDefault(m => m.Id == id);
     if (mineralDelete == null)
@@ -791,7 +817,7 @@ app.MapDelete("/api/mineral/{id}", (int id) =>
 });
 
 //Edit Mineral by Id
-app.MapPut("/api/mineral/{id}", (int id, Mineral mineral) =>
+app.MapPut("/api/minerals/{id}", (int id, Mineral mineral) =>
 {
     Mineral mineralToUpdate = minerals.FirstOrDefault(m => m.Id == id);
     if (mineralToUpdate == null)
